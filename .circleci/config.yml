@@ -22,7 +22,7 @@ jobs:
       - run:
           name: Deploy to Azure VM
           command: |
-            ssh -i ~/.ssh/test_key.pem azureuser@172.205.227.20 "cd /opt/lampp/htdocs/mutillidae && git pull origin main && sudo /opt/lampp/xampp restart"
+            ssh -i home/azureuser/.ssh/test_key.pem azureuser@172.205.227.20 "cd /opt/lampp/htdocs/mutillidae && git pull origin main && sudo /opt/lampp/xampp restart"
     
 workflows:
   version: 2
