@@ -17,20 +17,12 @@ jobs:
           fingerprints:
             - "SHA256:i5UbLMGKVZklg0ecFB36Tq59RNt/nsnXGAS9HduVry0"
 
-      # Configuration de l'environnement pour Mutillidae
-      - run:
-          name: Configure Mutillidae environment
-          command: |
-            # Assurez-vous que Apache et MySQL sont démarrés
-            sudo /opt/lampp/lampp start
 
-            # Autres configurations d'environnement nécessaires pour Mutillidae
-
-      # Déploiement de l'application web
+      #Build & Déploiement de l'application web
       - run:
           name: Deploy to Azure VM
           command: |
-            ssh -i ssh/test_key.pem azureuser@172.205.227.20 "cd /opt/lampp/htdocs/mutillidae && git pull origin main && sudo /opt/lampp/lampp restart"
+            ssh -i ssh/test_key.pem azureuser@172.205.227.20 "cd /opt/lampp/htdocs/mutillidae && git pull origin main && sudo /opt/lampp/xampp restart"
     
 workflows:
   version: 2
