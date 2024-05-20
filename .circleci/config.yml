@@ -1,26 +1,71 @@
 version: 2.1
 
-jobs:
-  deploy:
-    machine: true
+executors:
+  docker-executor:
+    docker:
+      - image: circleci/openjdk:17.0.2-jdk
+  python-executor:
+    docker:
+      - image: circleci/python:3.8
 
+jobs:
+  checkout_code:
+    executor: python-executor
     steps:
       - checkout
 
-      # Ajout de la clé SSH pour se connecter au serveur de déploiement
+  add_ssh_keys:
+    executor: python-executor
+    steps:
       - add_ssh_keys:
           fingerprints:
             - "SHA256:i5UbLMGKVZklg0ecFB36Tq59RNt/nsnXGAS9HduVry0"
 
+  install_sonar_scanner:
+    executor: docker-executor
+    steps:
+      - run:
+          name: Install SonarScanner
+          command: |
+            curl -sSLo sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
+            unzip sonar-scanner-cli.zip -d /usr/local/
+      - run:
+          name: Update PATH for SonarScanner
+          command: echo 'export PATH=$PATH:/usr/local/sonar-scanner-4.7.0.2747-linux/bin' >> $BASH_ENV
 
-      #Build & Déploiement de l'application web
+  run_sonar_scanner:
+    executor: docker-executor
+    steps:
+      - run:
+          name: Run SonarScanner
+          command: |
+            export PATH=$PATH:/usr/local/sonar-scanner-4.7.0.2747-linux/bin
+            sonar-scanner \
+              -Dsonar.projectKey=rozsherry \
+              -Dsonar.organization=rozsherry \
+              -Dsonar.sources=. \
+              -Dsonar.host.url=https://sonarcloud.io \
+              -Dsonar.login=2b7433c963f8695daaa149d9edb1f3f20f07f332
+
+  deploy:
+    executor: python-executor
+    steps:
       - run:
           name: Deploy to Azure VM
           command: |
-            ssh -i ~/.ssh/test_key.pem azureuser@172.205.227.20 "cd /opt/lampp/htdocs/mutillidae && git pull origin main && sudo /opt/lampp/xampp restart"
-    
+            ssh -i ssh/test_key.pem azureuser@172.205.227.20 "cd /opt/lampp/htdocs/mutillidae && git pull origin main && sudo /opt/lampp/lampp restart"
+
 workflows:
   version: 2
-  deploy_job:
+  build_and_test:
     jobs:
-      - deploy
+      - checkout_code
+      - install_sonar_scanner:
+          requires:
+            - checkout_code
+      - run_sonar_scanner:
+          requires:
+            - install_sonar_scanner
+      - deploy:
+          requires:
+            - run_sonar_scanner
