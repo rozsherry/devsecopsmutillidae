@@ -63,9 +63,10 @@ workflows:
       - install_sonar_scanner:
           requires:
             - checkout_code
+      - deploy:
+          requires:
+            - checkout_code
       - run_sonar_scanner:
           requires:
             - install_sonar_scanner
-      - deploy:
-          requires:
-            - run_sonar_scanner
+            - deploy
