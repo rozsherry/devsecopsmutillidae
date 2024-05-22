@@ -11,6 +11,16 @@ jobs:
     steps:
       - checkout
 
+  build:
+    executor: machine-executor
+    steps:
+      - checkout
+      - run:
+          name: Build Project
+          command: |
+            echo "Building the project..."
+            # Ajoutez ici les commandes nécessaires pour construire votre projet
+
   add_ssh_keys:
     executor: machine-executor
     steps:
@@ -62,16 +72,18 @@ workflows:
   build_and_test:
     jobs:
       - checkout_code
+      - build:
+          requires:
+            - checkout_code
       - add_ssh_keys:
           requires:
-            - checkout_code
-      - install_sonar_scanner:
-          requires:
-            - checkout_code
+            - build
       - deploy:
           requires:
-            - install_sonar_scanner
             - add_ssh_keys
-      - run_sonar_scanner:
+      - install_sonar_scanner:
           requires:
             - deploy
+      - run_sonar_scanner:
+          requires:
+            - install_sonar_scanner
