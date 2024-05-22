@@ -1,29 +1,31 @@
 version: 2.1
 
 executors:
-  docker-executor:
-    docker:
-      - image: circleci/openjdk:17.0.10-jdk
-  python-executor:
-    docker:
-      - image: circleci/python:3.8
+  machine-executor:
+    machine:
+      image: ubuntu-2004:202101-01
 
 jobs:
   checkout_code:
-    executor: python-executor
+    executor: machine-executor
     steps:
       - checkout
 
   add_ssh_keys:
-    executor: python-executor
+    executor: machine-executor
     steps:
       - add_ssh_keys:
           fingerprints:
             - "SHA256:i5UbLMGKVZklg0ecFB36Tq59RNt/nsnXGAS9HduVry0"
 
   install_sonar_scanner:
-    executor: docker-executor
+    executor: machine-executor
     steps:
+      - run:
+          name: Install Dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y curl unzip openjdk-17-jdk
       - run:
           name: Install SonarScanner
           command: |
@@ -33,8 +35,16 @@ jobs:
           name: Update PATH for SonarScanner
           command: echo 'export PATH=$PATH:/usr/local/sonar-scanner-4.7.0.2747-linux/bin' >> $BASH_ENV
 
+  deploy:
+    executor: machine-executor
+    steps:
+      - run:
+          name: Deploy to Azure VM
+          command: |
+            ssh -i ~/.ssh/test_key.pem azureuser@172.205.227.20 "cd /opt/lampp/htdocs/mutillidae && git pull origin main && sudo /opt/lampp/lampp restart"
+
   run_sonar_scanner:
-    executor: docker-executor
+    executor: machine-executor
     steps:
       - run:
           name: Run SonarScanner
@@ -47,26 +57,21 @@ jobs:
               -Dsonar.host.url=https://sonarcloud.io \
               -Dsonar.login=2b7433c963f8695daaa149d9edb1f3f20f07f332
 
-  deploy:
-    executor: python-executor
-    steps:
-      - run:
-          name: Deploy to Azure VM
-          command: |
-            ssh -i ~/.ssh/test_key.pem azureuser@172.205.227.20 "cd /opt/lampp/htdocs/mutillidae && git pull origin main && sudo /opt/lampp/lampp restart"
-
 workflows:
   version: 2
   build_and_test:
     jobs:
       - checkout_code
+      - add_ssh_keys:
+          requires:
+            - checkout_code
       - install_sonar_scanner:
           requires:
             - checkout_code
       - deploy:
           requires:
-            - checkout_code
+            - install_sonar_scanner
+            - add_ssh_keys
       - run_sonar_scanner:
           requires:
-            - install_sonar_scanner
             - deploy
