@@ -43,27 +43,19 @@ jobs:
             sudo mv /usr/local/sonar-scanner-4.7.0.2747-linux /usr/local/sonar-scanner
             sudo chmod -R 755 /usr/local/sonar-scanner
 
-  deploy:
+  run_sonar_scanner:
     executor: machine-executor
     steps:
       - run:
-          name: Deploy to Azure VM
+          name: Set JAVA_HOME and Run SonarScanner
           command: |
-            ssh -i ~/.ssh/test_key.pem azureuser@172.205.227.20 "cd /opt/lampp/htdocs/mutillidae && git pull origin main && sudo /opt/lampp/lampp restart"
-
-run_sonar_scanner:
-  executor: machine-executor
-  steps:
-    - run:
-        name: Set JAVA_HOME and Run SonarScanner
-        command: |
-          export JAVA_HOME=/usr  # Définition de JAVA_HOME en utilisant la variable d'environnement définie dans les paramètres du projet
-          /opt/sonar-scanner/bin/sonar-scanner \
-            -Dsonar.projectKey=rozsherry \
-            -Dsonar.organization=rozsherry \
-            -Dsonar.sources=. \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=2b7433c963f8695daaa149d9edb1f3f20f07f332
+            export JAVA_HOME=/usr  # Définition de JAVA_HOME en utilisant la variable d'environnement définie dans les paramètres du projet
+            /usr/local/sonar-scanner/bin/sonar-scanner \
+              -Dsonar.projectKey=rozsherry \
+              -Dsonar.organization=rozsherry \
+              -Dsonar.sources=. \
+              -Dsonar.host.url=https://sonarcloud.io \
+              -Dsonar.login=2b7433c963f8695daaa149d9edb1f3f20f07f332
 
 workflows:
   version: 2
