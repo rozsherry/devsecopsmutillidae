@@ -68,12 +68,9 @@ workflows:
       - add_ssh_keys:
           requires:
             - build
-      - deploy:
-          requires:
-            - add_ssh_keys
       - install_sonar_scanner:
           requires:
-            - deploy
+            - add_ssh_keys
       - run_sonar_scanner:
           requires:
             - install_sonar_scanner
