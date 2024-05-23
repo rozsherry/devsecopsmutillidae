@@ -57,7 +57,7 @@ jobs:
       - run:
           name: Run SonarScanner
           command: |
-            export PATH=$PATH:/usr/local/sonar-scanner/bin
+            export PATH=$PATH:/opt/sonar-scanner/bin
             sonar-scanner \
               -Dsonar.projectKey=rozsherry \
               -Dsonar.organization=rozsherry \
