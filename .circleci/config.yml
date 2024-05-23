@@ -43,13 +43,21 @@ jobs:
             sudo mv /usr/local/sonar-scanner-4.7.0.2747-linux /usr/local/sonar-scanner
             sudo chmod -R 755 /usr/local/sonar-scanner
 
+  deploy:
+    executor: machine-executor
+    steps:
+      - run:
+          name: Deploy to Azure VM
+          command: |
+            ssh -i ~/.ssh/test_key.pem azureuser@172.205.227.20 "cd /opt/lampp/htdocs/mutillidae && git pull origin main && sudo /opt/lampp/lampp restart"
+
   run_sonar_scanner:
     executor: machine-executor
     steps:
       - run:
           name: Set JAVA_HOME and Run SonarScanner
           command: |
-            export JAVA_HOME=/usr  # Définition de JAVA_HOME en utilisant la variable d'environnement définie dans les paramètres du projet
+             export JAVA_HOME=/usr  # Définition de JAVA_HOME en utilisant la variable d'environnement définie dans les paramètres du projet
             /usr/local/sonar-scanner/bin/sonar-scanner \
               -Dsonar.projectKey=rozsherry \
               -Dsonar.organization=rozsherry \
@@ -68,9 +76,12 @@ workflows:
       - add_ssh_keys:
           requires:
             - build
-      - install_sonar_scanner:
+      - deploy:
           requires:
             - add_ssh_keys
+      - install_sonar_scanner:
+          requires:
+            - deploy
       - run_sonar_scanner:
           requires:
             - install_sonar_scanner
