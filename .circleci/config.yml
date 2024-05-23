@@ -58,6 +58,9 @@ jobs:
     executor: machine-executor
     steps:
       - run:
+          name: Load Environment Variables
+          command: source $BASH_ENV
+      - run:
           name: Run SonarScanner
           command: |
             sonar-scanner \
