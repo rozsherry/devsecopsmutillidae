@@ -57,7 +57,7 @@ jobs:
       - run:
           name: Set JAVA_HOME and Run SonarScanner
           command: |
-             export JAVA_HOME=/usr  # Définition de JAVA_HOME en utilisant la variable d'environnement définie dans les paramètres du projet
+            export JAVA_HOME=/usr  # Définition de JAVA_HOME en utilisant la variable d'environnement définie dans les paramètres du projet
             /usr/local/sonar-scanner/bin/sonar-scanner \
               -Dsonar.projectKey=rozsherry \
               -Dsonar.organization=rozsherry \
