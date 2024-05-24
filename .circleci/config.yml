@@ -58,20 +58,23 @@ jobs:
           name: Debug Environment
           command: |
             echo "JAVA_HOME is set to $JAVA_HOME"
-            ls -l /opt/sonar-scanner/bin/sonar-scanner
-            echo "Contents of /opt/sonar-scanner/bin:"
-            ls /opt/sonar-scanner/bin
+            echo "PATH is set to $PATH"
+            ls -l /opt/sonar-scanner/bin
+            ls -l /usr/lib/jvm/openjdk-17
       - run:
           name: Set JAVA_HOME and Run SonarScanner
           command: |
             export JAVA_HOME=/usr/lib/jvm/openjdk-17
+            export PATH=$PATH:/opt/sonar-scanner/bin
             echo "Running SonarScanner with JAVA_HOME=$JAVA_HOME"
-            /opt/sonar-scanner/bin/sonar-scanner \
+            sonar-scanner \
               -Dsonar.projectKey=rozsherry \
               -Dsonar.organization=rozsherry \
               -Dsonar.sources=. \
               -Dsonar.host.url=https://sonarcloud.io \
               -Dsonar.login=2b7433c963f8695daaa149d9edb1f3f20f07f332
+
+
 
 workflows:
   version: 2
