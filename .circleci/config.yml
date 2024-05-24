@@ -42,6 +42,11 @@ jobs:
             sudo unzip sonar-scanner-cli.zip -d /usr/local/
             sudo mv /usr/local/sonar-scanner-4.7.0.2747-linux /opt/sonar-scanner
             sudo chmod -R 755 /opt/sonar-scanner
+      - run:
+          name: Verify SonarScanner Installation
+          command: |
+            ls -l /opt/sonar-scanner/bin
+            /opt/sonar-scanner/bin/sonar-scanner --version
 
   deploy:
     executor: machine-executor
@@ -55,26 +60,21 @@ jobs:
     executor: machine-executor
     steps:
       - run:
-          name: Debug Environment
-          command: |
-            echo "JAVA_HOME is set to $JAVA_HOME"
-            echo "PATH is set to $PATH"
-            ls -l /opt/sonar-scanner/bin
-            ls -l /usr/lib/jvm/openjdk-17
-      - run:
-          name: Set JAVA_HOME and Run SonarScanner
+          name: Set JAVA_HOME and PATH
           command: |
             export JAVA_HOME=/usr/lib/jvm/openjdk-17
             export PATH=$PATH:/opt/sonar-scanner/bin
-            echo "Running SonarScanner with JAVA_HOME=$JAVA_HOME"
+            echo "JAVA_HOME is set to $JAVA_HOME"
+            echo "PATH is set to $PATH"
+      - run:
+          name: Run SonarScanner
+          command: |
             sonar-scanner \
               -Dsonar.projectKey=rozsherry \
               -Dsonar.organization=rozsherry \
               -Dsonar.sources=. \
               -Dsonar.host.url=https://sonarcloud.io \
               -Dsonar.login=2b7433c963f8695daaa149d9edb1f3f20f07f332
-
-
 
 workflows:
   version: 2
