@@ -40,8 +40,8 @@ jobs:
           command: |
             curl -sSLo sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
             sudo unzip sonar-scanner-cli.zip -d /usr/local/
-            sudo mv /usr/local/sonar-scanner-4.7.0.2747-linux /usr/local/sonar-scanner
-            sudo chmod -R 755 /usr/local/sonar-scanner
+            sudo mv /usr/local/sonar-scanner-4.7.0.2747-linux /opt/sonar-scanner
+            sudo chmod -R 755 /opt/sonar-scanner
 
   deploy:
     executor: machine-executor
@@ -57,8 +57,8 @@ jobs:
       - run:
           name: Set JAVA_HOME and Run SonarScanner
           command: |
-            export JAVA_HOME=/usr/lib/jvm/openjdk-17  # Définition de JAVA_HOME en utilisant la variable d'environnement définie dans les paramètres du projet
-            /usr/local/sonar-scanner/bin/sonar-scanner \
+            export JAVA_HOME=/usr/lib/jvm/openjdk-17
+            /opt/sonar-scanner/bin/sonar-scanner \
               -Dsonar.projectKey=rozsherry \
               -Dsonar.organization=rozsherry \
               -Dsonar.sources=. \
