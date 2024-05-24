@@ -55,9 +55,17 @@ jobs:
     executor: machine-executor
     steps:
       - run:
+          name: Debug Environment
+          command: |
+            echo "JAVA_HOME is set to $JAVA_HOME"
+            ls -l /opt/sonar-scanner/bin/sonar-scanner
+            echo "Contents of /opt/sonar-scanner/bin:"
+            ls /opt/sonar-scanner/bin
+      - run:
           name: Set JAVA_HOME and Run SonarScanner
           command: |
             export JAVA_HOME=/usr/lib/jvm/openjdk-17
+            echo "Running SonarScanner with JAVA_HOME=$JAVA_HOME"
             /opt/sonar-scanner/bin/sonar-scanner \
               -Dsonar.projectKey=rozsherry \
               -Dsonar.organization=rozsherry \
