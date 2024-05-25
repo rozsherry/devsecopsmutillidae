@@ -58,14 +58,10 @@ jobs:
 
   run_sonar_scanner:
     executor: machine-executor
+    environment:
+      JAVA_HOME: /usr/lib/jvm/openjdk-17
+      PATH: /opt/sonar-scanner/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     steps:
-      - run:
-          name: Set JAVA_HOME and PATH
-          command: |
-            export JAVA_HOME=/usr/lib/jvm/openjdk-17
-            export PATH=$PATH:/opt/sonar-scanner/bin
-            echo "JAVA_HOME is set to $JAVA_HOME"
-            echo "PATH is set to $PATH"
       - run:
           name: Run SonarScanner
           command: |
