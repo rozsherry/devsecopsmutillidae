@@ -1,4 +1,4 @@
-kversion: 2.1
+version: 2.1
 
 executors:
   machine-executor:
@@ -36,24 +36,12 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y curl unzip openjdk-17-jdk
       - run:
-          name: Verify /opt Directory
-          command: |
-            echo "Listing contents of /opt before installation"
-            ls -l /opt
-      - run:
           name: Install SonarScanner
           command: |
             curl -sSLo sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
             sudo unzip sonar-scanner-cli.zip -d /usr/local/
             sudo mv /usr/local/sonar-scanner-4.7.0.2747-linux /opt/sonar-scanner
             sudo chmod -R 755 /opt/sonar-scanner
-      - run:
-          name: Verify SonarScanner Directory
-          command: |
-            echo "Listing contents of /opt after installation"
-            ls -l /opt
-            echo "Listing contents of /opt/sonar-scanner after installation"
-            ls -l /opt/sonar-scanner
       - run:
           name: Verify SonarScanner Installation
           command: |
@@ -129,4 +117,3 @@ workflows:
       - run_sonar_scanner:
           requires:
             - check_sonar_scanner
-
