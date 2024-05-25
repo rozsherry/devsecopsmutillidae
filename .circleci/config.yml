@@ -99,3 +99,4 @@ workflows:
       - run_sonar_scanner:
           requires:
             - install_sonar_scanner
+
