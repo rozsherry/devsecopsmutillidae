@@ -63,9 +63,16 @@ jobs:
       PATH: /opt/sonar-scanner/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     steps:
       - run:
+          name: Set Environment Variables
+          command: |
+            export JAVA_HOME=/usr/lib/jvm/openjdk-17
+            export PATH=$PATH:/opt/sonar-scanner/bin
+            echo "JAVA_HOME is set to $JAVA_HOME"
+            echo "PATH is set to $PATH"
+      - run:
           name: Run SonarScanner
           command: |
-            sonar-scanner \
+            /opt/sonar-scanner/bin/sonar-scanner \
               -Dsonar.projectKey=rozsherry \
               -Dsonar.organization=rozsherry \
               -Dsonar.sources=. \
