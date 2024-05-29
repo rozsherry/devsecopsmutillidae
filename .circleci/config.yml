@@ -41,7 +41,9 @@ jobs:
             curl -sSLo sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
             sudo unzip sonar-scanner-cli.zip -d /usr/local/
             sudo mv /usr/local/sonar-scanner-4.7.0.2747-linux /opt/sonar-scanner
-            sudo chmod -R 755 /opt/sonar-scanner & pwd & whoami & uname -a
+            sudo chmod -R 755 /opt/sonar-scanner
+            ls -al /opt/sonar-scanner
+            ls -al /opt/sonar-scanner/bin
 
   deploy:
     executor: machine-executor
@@ -64,6 +66,8 @@ jobs:
             export PATH=$PATH:/opt/sonar-scanner/bin
             echo "JAVA_HOME is set to $JAVA_HOME"
             echo "PATH is set to $PATH"
+            ls -al /opt/sonar-scanner
+            ls -al /opt/sonar-scanner/bin
       - run:
           name: Run SonarScanner
           command: |
