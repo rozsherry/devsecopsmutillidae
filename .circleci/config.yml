@@ -42,6 +42,7 @@ jobs:
             sudo unzip sonar-scanner-cli.zip -d /usr/local/
             sudo mv /usr/local/sonar-scanner-4.7.0.2747-linux /opt/sonar-scanner
             sudo chmod -R 755 /opt/sonar-scanner
+
   deploy:
     executor: machine-executor
     steps:
@@ -49,7 +50,6 @@ jobs:
           name: Deploy to Azure VM
           command: |
             ssh -i ~/.ssh/test_key.pem azureuser@172.205.227.20 "cd /opt/lampp/htdocs/mutillidae && git pull origin main && sudo /opt/lampp/lampp restart"
-
 
   run_sonar_scanner:
     executor: machine-executor
@@ -91,6 +91,6 @@ workflows:
       - install_sonar_scanner:
           requires:
             - deploy
-      - check_sonar_scanner:
+      - run_sonar_scanner:
           requires:
             - install_sonar_scanner
