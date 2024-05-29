@@ -42,7 +42,7 @@ jobs:
             sudo unzip sonar-scanner-cli.zip -d /usr/local/
             sudo mv /usr/local/sonar-scanner-4.7.0.2747-linux /opt/sonar-scanner
             sudo chmod -R 755 /opt/sonar-scanner
-
+	    pwd
   deploy:
     executor: machine-executor
     steps:
