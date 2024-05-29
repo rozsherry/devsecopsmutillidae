@@ -45,7 +45,6 @@ jobs:
             ls -al /usr/local/sonar-scanner
             ls -al /usr/local/sonar-scanner/bin
 
-
   deploy:
     executor: machine-executor
     steps:
@@ -58,21 +57,21 @@ jobs:
     executor: machine-executor
     environment:
       JAVA_HOME: /usr/lib/jvm/openjdk-17
-      PATH: /opt/sonar-scanner/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      PATH: /usr/local/sonar-scanner/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     steps:
       - run:
           name: Set Environment Variables
           command: |
             export JAVA_HOME=/usr/lib/jvm/openjdk-17
-            export PATH=$PATH:/opt/sonar-scanner/bin
+            export PATH=$PATH:/usr/local/sonar-scanner/bin
             echo "JAVA_HOME is set to $JAVA_HOME"
             echo "PATH is set to $PATH"
-            ls -al /opt/sonar-scanner
-            ls -al /opt/sonar-scanner/bin
+            ls -al /usr/local/sonar-scanner
+            ls -al /usr/local/sonar-scanner/bin
       - run:
           name: Run SonarScanner
           command: |
-            /opt/sonar-scanner/bin/sonar-scanner \
+            /usr/local/sonar-scanner/bin/sonar-scanner \
               -Dsonar.projectKey=rozsherry \
               -Dsonar.organization=rozsherry \
               -Dsonar.sources=. \
