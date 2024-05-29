@@ -50,20 +50,6 @@ jobs:
           command: |
             ssh -i ~/.ssh/test_key.pem azureuser@172.205.227.20 "cd /opt/lampp/htdocs/mutillidae && git pull origin main && sudo /opt/lampp/lampp restart"
 
-  check_sonar_scanner:
-    executor: machine-executor
-    steps:
-      - run:
-          name: Check SonarScanner Path
-          command: |
-            echo "Listing files in /opt/sonar-scanner/bin"
-            ls -l /opt/sonar-scanner/bin
-            if [ ! -f /opt/sonar-scanner/bin/sonar-scanner ]; then
-              echo "SonarScanner executable not found!"
-              exit 1
-            fi
-            echo "SonarScanner executable found."
-            ls -l /opt/sonar-scanner/bin/sonar-scanner
 
   run_sonar_scanner:
     executor: machine-executor
