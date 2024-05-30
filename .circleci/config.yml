@@ -35,18 +35,31 @@ jobs:
           command: |
             sudo apt-get update
             sudo apt-get install -y curl unzip openjdk-17-jdk
+      - run:
+          name: Download SonarScanner
+          command: |
             curl -sSLo sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
             echo "Downloaded sonar-scanner-cli.zip:"
             ls -al sonar-scanner-cli.zip
+      - run:
+          name: Extract SonarScanner
+          command: |
             sudo unzip sonar-scanner-cli.zip -d /usr/local/
             echo "Extracted sonar-scanner-cli.zip:"
             ls -al /usr/local/sonar-scanner-4.7.0.2747-linux
+      - run:
+          name: Move SonarScanner
+          command: |
             sudo mv /usr/local/sonar-scanner-4.7.0.2747-linux /usr/local/sonar-scanner
-            sudo chmod -R 755 /usr/local/sonar-scanner
-            echo "After moving and setting permissions:"
+            echo "Moved sonar-scanner to /usr/local/sonar-scanner:"
             ls -al /usr/local/
             ls -al /usr/local/sonar-scanner
-            ls -al /usr/local/sonar-scanner/bin
+      - run:
+          name: Set Permissions
+          command: |
+            sudo chmod -R 755 /usr/local/sonar-scanner
+            echo "Set permissions for /usr/local/sonar-scanner:"
+            ls -al /usr/local/sonar-scanner
 
   deploy:
     executor: machine-executor
