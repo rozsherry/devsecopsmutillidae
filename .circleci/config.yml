@@ -76,10 +76,8 @@ jobs:
       PATH: /usr/local/sonar-scanner/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     steps:
       - run:
-          name: Set Environment Variables
+          name: Verify SonarScanner Installation
           command: |
-            export JAVA_HOME=/usr/lib/jvm/openjdk-17
-            export PATH=$PATH:/usr/local/sonar-scanner/bin
             echo "JAVA_HOME is set to $JAVA_HOME"
             echo "PATH is set to $PATH"
             echo "Checking /usr/local/sonar-scanner directory:"
@@ -116,3 +114,4 @@ workflows:
       - run_sonar_scanner:
           requires:
             - install_sonar_scanner
+
