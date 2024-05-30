@@ -36,11 +36,15 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y curl unzip openjdk-17-jdk
             curl -sSLo sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
+            echo "Downloaded sonar-scanner-cli.zip:"
             ls -al sonar-scanner-cli.zip
             sudo unzip sonar-scanner-cli.zip -d /usr/local/
-            ls -al /usr/local/
+            echo "Extracted sonar-scanner-cli.zip:"
+            ls -al /usr/local/sonar-scanner-4.7.0.2747-linux
             sudo mv /usr/local/sonar-scanner-4.7.0.2747-linux /usr/local/sonar-scanner
             sudo chmod -R 755 /usr/local/sonar-scanner
+            echo "After moving and setting permissions:"
+            ls -al /usr/local/
             ls -al /usr/local/sonar-scanner
             ls -al /usr/local/sonar-scanner/bin
 
@@ -65,7 +69,9 @@ jobs:
             export PATH=$PATH:/usr/local/sonar-scanner/bin
             echo "JAVA_HOME is set to $JAVA_HOME"
             echo "PATH is set to $PATH"
+            echo "Checking /usr/local/sonar-scanner directory:"
             ls -al /usr/local/sonar-scanner
+            echo "Checking /usr/local/sonar-scanner/bin directory:"
             ls -al /usr/local/sonar-scanner/bin
       - run:
           name: Run SonarScanner
