@@ -35,21 +35,31 @@ jobs:
           command: |
             ssh -i ~/.ssh/test_key.pem azureuser@172.205.227.20 "cd /opt/lampp/htdocs/mutillidae && git pull origin main && sudo /opt/lampp/lampp restart"
 
+  download_extract_install_owasp_zap:
+    executor: machine-executor
+    steps:
+      - run:
+          name: Download OWASP ZAP
+          command: |
+            wget -O ZAP_2.11.0_Linux.tar.gz https://github.com/zaproxy/zaproxy/releases/download/v2.11.0/ZAP_2.11.0_Linux.tar.gz
+      - run:
+          name: Extract OWASP ZAP
+          command: |
+            tar -xf ZAP_2.11.0_Linux.tar.gz
+      - run:
+          name: Install OWASP ZAP Dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y openjdk-17-jdk
+            export PATH=$PATH:$(pwd)/ZAP_2.11.0
+
   run_owasp_zap:
     executor: machine-executor
     steps:
       - run:
-          name: Install OWASP ZAP
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y openjdk-17-jdk
-            curl -sSLO https://github.com/zaproxy/zaproxy/releases/download/v2.11.0/ZAP_2.11.0_Linux.tar.gz
-            tar -xf ZAP_2.11.0_Linux.tar.gz
-            export PATH=$PATH:$(pwd)/ZAP_2.11.0
-      - run:
           name: Run OWASP ZAP
           command: |
-            zap-baseline.py -t https://your-website-url.com -r owasp_report.html
+            zap-baseline.py -t http://172.205.227.20/mutillidae/ -r owasp_report.html
 
 workflows:
   version: 2
@@ -65,6 +75,9 @@ workflows:
       - deploy:
           requires:
             - add_ssh_keys
-      - run_owasp_zap:
+      - download_extract_install_owasp_zap:
           requires:
             - deploy
+      - run_owasp_zap:
+          requires:
+            - download_extract_install_owasp_zap
