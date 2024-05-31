@@ -4,6 +4,9 @@ executors:
   custom-executor:
     docker:
       - image: dockerimg:latest
+        environment:
+          DOCKER_USERNAME: $DOCKER_USERNAME
+          DOCKER_PASSWORD: $DOCKER_PASSWORD
 
 jobs:
   checkout_code:
@@ -70,3 +73,7 @@ workflows:
             - build
       - deploy:
           requires:
+            - add_ssh_keys
+      - run_sonar_scanner:
+          requires:
+            - deploy
