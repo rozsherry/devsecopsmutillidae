@@ -1,5 +1,3 @@
-version: 2.1
-
 executors:
   custom-executor:
     docker:
@@ -22,6 +20,14 @@ jobs:
           name: Build Project
           command: |
             echo "Building the project..."
+
+  login_to_docker_hub:
+    executor: custom-executor
+    steps:
+      - run:
+          name: Login to Docker Hub
+          command: |
+            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 
   add_ssh_keys:
     executor: custom-executor
@@ -68,9 +74,12 @@ workflows:
       - build:
           requires:
             - checkout_code
-      - add_ssh_keys:
+      - login_to_docker_hub: # Ajout de l'étape de connexion à Docker Hub
           requires:
             - build
+      - add_ssh_keys:
+          requires:
+            - login_to_docker_hub # Modification de l'exigence
       - deploy:
           requires:
             - add_ssh_keys
