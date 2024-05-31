@@ -1,18 +1,18 @@
 version: 2.1
 
 executors:
-  machine-executor:
-    machine:
-      image: ubuntu-2004:202101-01
+  custom-executor:
+    docker:
+      - image: dockerimg:latest
 
 jobs:
   checkout_code:
-    executor: machine-executor
+    executor: custom-executor
     steps:
       - checkout
 
   build:
-    executor: machine-executor
+    executor: custom-executor
     steps:
       - checkout
       - run:
@@ -21,48 +21,14 @@ jobs:
             echo "Building the project..."
 
   add_ssh_keys:
-    executor: machine-executor
+    executor: custom-executor
     steps:
       - add_ssh_keys:
           fingerprints:
             - "SHA256:i5UbLMGKVZklg0ecFB36Tq59RNt/nsnXGAS9HduVry0"
 
-  install_sonar_scanner:
-    executor: machine-executor
-    steps:
-      - run:
-          name: Install Dependencies
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y curl unzip openjdk-17-jdk
-      - run:
-          name: Download SonarScanner
-          command: |
-            curl -sSLo sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
-            echo "Downloaded sonar-scanner-cli.zip:"
-            ls -al sonar-scanner-cli.zip
-      - run:
-          name: Extract SonarScanner
-          command: |
-            sudo unzip sonar-scanner-cli.zip -d /usr/local/
-            echo "Extracted sonar-scanner-cli.zip:"
-            ls -al /usr/local/sonar-scanner-4.7.0.2747-linux
-      - run:
-          name: Move SonarScanner
-          command: |
-            sudo mv /usr/local/sonar-scanner-4.7.0.2747-linux /usr/local/sonar-scanner
-            echo "Moved sonar-scanner to /usr/local/sonar-scanner:"
-            ls -al /usr/local/
-            ls -al /usr/local/sonar-scanner
-      - run:
-          name: Set Permissions
-          command: |
-            sudo chmod -R 755 /usr/local/sonar-scanner
-            echo "Set permissions for /usr/local/sonar-scanner:"
-            ls -al /usr/local/sonar-scanner
-
   deploy:
-    executor: machine-executor
+    executor: custom-executor
     steps:
       - run:
           name: Deploy to Azure VM
@@ -70,10 +36,7 @@ jobs:
             ssh -i ~/.ssh/test_key.pem azureuser@172.205.227.20 "cd /opt/lampp/htdocs/mutillidae && git pull origin main && sudo /opt/lampp/lampp restart"
 
   run_sonar_scanner:
-    executor: machine-executor
-    environment:
-      JAVA_HOME: /usr/lib/jvm/openjdk-17
-      PATH: /usr/local/sonar-scanner/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    executor: custom-executor
     steps:
       - run:
           name: Verify SonarScanner Installation
@@ -107,11 +70,3 @@ workflows:
             - build
       - deploy:
           requires:
-            - add_ssh_keys
-      - install_sonar_scanner:
-          requires:
-            - deploy
-      - run_sonar_scanner:
-          requires:
-            - install_sonar_scanner
-
