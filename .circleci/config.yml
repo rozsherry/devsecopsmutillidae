@@ -27,40 +27,6 @@ jobs:
           fingerprints:
             - "SHA256:i5UbLMGKVZklg0ecFB36Tq59RNt/nsnXGAS9HduVry0"
 
-  install_sonar_scanner:
-    executor: machine-executor
-    steps:
-      - run:
-          name: Install Dependencies
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y curl unzip openjdk-17-jdk
-      - run:
-          name: Download SonarScanner
-          command: |
-            curl -sSLo sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
-            echo "Downloaded sonar-scanner-cli.zip:"
-            ls -al sonar-scanner-cli.zip
-      - run:
-          name: Extract SonarScanner
-          command: |
-            sudo unzip sonar-scanner-cli.zip -d /usr/local/
-            echo "Extracted sonar-scanner-cli.zip:"
-            ls -al /usr/local/sonar-scanner-4.7.0.2747-linux
-      - run:
-          name: Move SonarScanner
-          command: |
-            sudo mv /usr/local/sonar-scanner-4.7.0.2747-linux /usr/local/sonar-scanner
-            echo "Moved sonar-scanner to /usr/local/sonar-scanner:"
-            ls -al /usr/local/
-            ls -al /usr/local/sonar-scanner
-      - run:
-          name: Set Permissions
-          command: |
-            sudo chmod -R 755 /usr/local/sonar-scanner
-            echo "Set permissions for /usr/local/sonar-scanner:"
-            ls -al /usr/local/sonar-scanner
-
   deploy:
     executor: machine-executor
     steps:
@@ -69,30 +35,21 @@ jobs:
           command: |
             ssh -i ~/.ssh/test_key.pem azureuser@172.205.227.20 "cd /opt/lampp/htdocs/mutillidae && git pull origin main && sudo /opt/lampp/lampp restart"
 
-  run_sonar_scanner:
+  run_owasp_zap:
     executor: machine-executor
-    environment:
-      JAVA_HOME: /usr/lib/jvm/openjdk-17
-      PATH: /usr/local/sonar-scanner/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     steps:
       - run:
-          name: Verify SonarScanner Installation
+          name: Install OWASP ZAP
           command: |
-            echo "JAVA_HOME is set to $JAVA_HOME"
-            echo "PATH is set to $PATH"
-            echo "Checking /usr/local/sonar-scanner directory:"
-            ls -al /usr/local/sonar-scanner
-            echo "Checking /usr/local/sonar-scanner/bin directory:"
-            ls -al /usr/local/sonar-scanner/bin
+            sudo apt-get update
+            sudo apt-get install -y openjdk-17-jdk
+            curl -sSLO https://github.com/zaproxy/zaproxy/releases/download/v2.11.0/ZAP_2.11.0_Linux.tar.gz
+            tar -xf ZAP_2.11.0_Linux.tar.gz
+            export PATH=$PATH:$(pwd)/ZAP_2.11.0
       - run:
-          name: Run SonarScanner
+          name: Run OWASP ZAP
           command: |
-            /usr/local/sonar-scanner/bin/sonar-scanner \
-              -Dsonar.projectKey=rozsherry \
-              -Dsonar.organization=rozsherry \
-              -Dsonar.sources=. \
-              -Dsonar.host.url=https://sonarcloud.io \
-              -Dsonar.login=2b7433c963f8695daaa149d9edb1f3f20f07f332
+            zap-baseline.py -t https://your-website-url.com -r owasp_report.html
 
 workflows:
   version: 2
@@ -108,9 +65,6 @@ workflows:
       - deploy:
           requires:
             - add_ssh_keys
-      - install_sonar_scanner:
+      - run_owasp_zap:
           requires:
             - deploy
-      - run_sonar_scanner:
-          requires:
-            - install_sonar_scanner
