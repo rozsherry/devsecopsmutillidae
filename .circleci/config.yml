@@ -56,23 +56,23 @@ jobs:
           command: |
             /usr/local/dependency-check/bin/dependency-check.sh --scan /opt/lampp/htdocs/mutillidae
 
-  workflows:
-    version: 2
-    build_and_test:
-      jobs:
-        - checkout_code
-        - build:
-            requires:
-              - checkout_code
-        - add_ssh_keys:
-            requires:
-              - build
-        - deploy:
-            requires:
-              - add_ssh_keys
-        - install_dependency_check:
-            requires:
-              - deploy
-        - run_dependency_check:
-            requires:
-              - install_dependency_check
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - checkout_code
+      - build:
+          requires:
+            - checkout_code
+      - add_ssh_keys:
+          requires:
+            - build
+      - deploy:
+          requires:
+            - add_ssh_keys
+      - install_dependency_check:
+          requires:
+            - deploy
+      - run_dependency_check:
+          requires:
+            - install_dependency_check
