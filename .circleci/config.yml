@@ -27,6 +27,19 @@ jobs:
           fingerprints:
             - "SHA256:i5UbLMGKVZklg0ecFB36Tq59RNt/nsnXGAS9HduVry0"
 
+  install_dependency_check:
+    executor: machine-executor
+    steps:
+      - run:
+          name: Install DependencyCheck
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y curl unzip openjdk-17-jdk
+            curl -LO https://dl.bintray.com/jeremy-long/owasp/dependency-check-7.0.0-release.zip
+            unzip dependency-check-7.0.0-release.zip
+            sudo mv dependency-check-7.0.0-release /usr/local/dependency-check
+            sudo chmod +x /usr/local/dependency-check/bin/dependency-check.sh
+
   deploy:
     executor: machine-executor
     steps:
@@ -35,49 +48,31 @@ jobs:
           command: |
             ssh -i ~/.ssh/test_key.pem azureuser@172.205.227.20 "cd /opt/lampp/htdocs/mutillidae && git pull origin main && sudo /opt/lampp/lampp restart"
 
-  download_extract_install_owasp_zap:
+  run_dependency_check:
     executor: machine-executor
     steps:
       - run:
-          name: Download OWASP ZAP
+          name: Run DependencyCheck
           command: |
-            curl -LO https://github.com/zaproxy/zaproxy/releases/download/w2024-05-28/ZAP_WEEKLY_D-2024-05-28.zip
-      - run:
-          name: Extract OWASP ZAP
-          command: |
-            unzip ZAP_WEEKLY_D-2024-05-28.zip
-      - run:
-          name: Install OWASP ZAP Dependencies
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y openjdk-17-jdk
-            export PATH=$PATH:$(pwd)/ZAP_WEEKLY_D-2024-05-28
+            /usr/local/dependency-check/bin/dependency-check.sh --scan /opt/lampp/htdocs/mutillidae
 
-  run_owasp_zap:
-    executor: machine-executor
-    steps:
-      - run:
-          name: Run OWASP ZAP
-          command: |
-            zap-baseline.py -t http://172.205.227.20/mutillidae/ -r owasp_report.html
-
-workflows:
-  version: 2
-  build_and_test:
-    jobs:
-      - checkout_code
-      - build:
-          requires:
-            - checkout_code
-      - add_ssh_keys:
-          requires:
-            - build
-      - deploy:
-          requires:
-            - add_ssh_keys
-      - download_extract_install_owasp_zap:
-          requires:
-            - deploy
-      - run_owasp_zap:
-          requires:
-            - download_extract_install_owasp_zap
+  workflows:
+    version: 2
+    build_and_test:
+      jobs:
+        - checkout_code
+        - build:
+            requires:
+              - checkout_code
+        - add_ssh_keys:
+            requires:
+              - build
+        - deploy:
+            requires:
+              - add_ssh_keys
+        - install_dependency_check:
+            requires:
+              - deploy
+        - run_dependency_check:
+            requires:
+              - install_dependency_check
