@@ -3,7 +3,7 @@ version: 2.1
 executors:
   machine-executor:
     machine:
-      image: ubuntu-2004:202101-01
+      image: node:latest
 
 jobs:
   checkout_code:
@@ -20,28 +20,13 @@ jobs:
           command: |
             echo "Building the project..."
 
-  add_ssh_keys:
-    executor: machine-executor
-    steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "SHA256:i5UbLMGKVZklg0ecFB36Tq59RNt/nsnXGAS9HduVry0"
-
   deploy:
     executor: machine-executor
     steps:
       - run:
-          name: Deploy to Azure VM
+          name: Deploy 
           command: |
-            ssh -i ~/.ssh/test_key.pem azureuser@172.205.227.20 "cd /opt/lampp/htdocs/mutillidae && git pull origin main && sudo /opt/lampp/lampp restart"
-
-  run_dependency_check:
-    executor: machine-executor
-    steps:
-      - run:
-          name: Run DependencyCheck
-          command: |
-            /opt/lampp/htdocs/mutillidae/dependency-check/bin/dependency-check.sh --project "Mutillidae Project" --out /opt/lampp/htdocs/mutillidae/dependency-check-report.html
+            cd /opt/lampp/htdocs/mutillidae && git pull origin main && sudo /opt/lampp/lampp restart
 
 workflows:
   version: 2
@@ -51,12 +36,6 @@ workflows:
       - build:
           requires:
             - checkout_code
-      - add_ssh_keys:
-          requires:
-            - build
       - deploy:
           requires:
-            - add_ssh_keys
-      - run_dependency_check:
-          requires:
-            - deploy
+            - build
