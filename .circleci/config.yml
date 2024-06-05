@@ -6,15 +6,9 @@ executors:
       image: node:latest
 
 jobs:
-  checkout_code:
-    executor: machine-executor
-    steps:
-      - checkout
-
   build:
     executor: machine-executor
     steps:
-      - checkout
       - run:
           name: Build Project
           command: |
@@ -30,12 +24,9 @@ jobs:
 
 workflows:
   version: 2
-  build_and_test:
+  build_and_deploy:
     jobs:
-      - checkout_code
-      - build:
-          requires:
-            - checkout_code
+      - build
       - deploy:
           requires:
             - build
